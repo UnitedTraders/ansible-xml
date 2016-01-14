@@ -208,6 +208,39 @@ def set_target_children(tree, xpath, namespaces, children, module):
     # Write it out
     finish(tree, xpath, namespaces, module, changed=changed)
 
+def compare_children(a, b):
+    if len(a.getchildren()) != len(b.getchildren()):
+        return False
+    if a.text != b.text:
+        return False
+    children_as_string = [lxml.etree.tostring(c) for c in b.getchildren()]
+    for idx, element in enumerate(a.getchildren()):
+        if lxml.etree.tostring(element) != children_as_string[idx]:
+            return False
+    return True
+
+def set_target_xml(tree, xpath, namespaces, xml_body, module):
+    matches = tree.xpath(xpath, namespaces=namespaces)
+    parsed_body = etree.XML(xml_body)
+    changed = False
+
+    # xpaths always return matches as a list, so....
+    for match in matches:
+        if not compare_children(match, parsed_body):
+            if not module.check_mode:
+                # remove children
+                for child in match.getchildren():
+                    match.remove(child)
+                match.text = None
+                # copy children
+                for child in parsed_body.getchildren():
+                    match.append(child)
+
+            changed = True
+
+    # Write it out
+    finish(tree, xpath, namespaces, module, changed=changed)
+
 def add_target_children(tree, xpath, namespaces, children, module):
     if is_node(tree, xpath, namespaces):
         new_kids = children_to_nodes(children, module)
@@ -300,6 +333,7 @@ def main():
             namespaces=dict(required=False, default={}),
             ensure=dict(required=False, default='present', choices=['absent', 'present']),
             value=dict(required=False, default=None),
+            xml=dict(required=False, default=None),
             attribute=dict(required=False, default=None),
             add_children=dict(required=False, default=None),
             set_children=dict(required=False, default=None),
@@ -317,6 +351,9 @@ def main():
             ['content','set_children'],
             ['content','add_children'],
             ['content','value'],
+            ['xml', 'value'],
+            ['xml','set_children'],
+            ['xml','add_children'],
         ]
     )
 
@@ -331,6 +368,7 @@ def main():
     add_children = module.params['add_children']
     pretty_print = module.params['pretty_print']
     content = module.params['content']
+    xml_body = module.params['xml']
 
     ##################################################################
     # Check if the file exists
@@ -404,6 +442,12 @@ def main():
     # Yes: Set the attribute, exit
     if module.params['value']:
         set_target(x, xpath, namespaces, attribute, value, module)
+
+    ##################################################################
+    # xml set?
+    # Yes: set xml as content of the node
+    if module.params['xml']:
+        set_target_xml(x, xpath, namespaces, xml_body, module)
 
 ######################################################################
 from ansible.module_utils.basic import *
