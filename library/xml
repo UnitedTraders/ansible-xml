@@ -256,16 +256,19 @@ def set_target(tree, xpath, namespaces, attribute, value, module):
     if not is_node(tree, xpath, namespaces):
         abort("Xpath " + xpath + " does not reference a node!", module)
 
+    value_str = str(value)
     for element in tree.xpath(xpath, namespaces=namespaces):
         if not attribute:
-            changed = changed or (element.text != value)
-            if not module.check_mode and (element.text != value): element.text = value
+            changed = changed or (element.text != value_str)
+            if not module.check_mode and (element.text != value_str):
+                element.text = value_str
         else:
-            changed = changed or (element.get(attribute) != value)
+            changed = changed or (element.get(attribute) != value_str)
             if ":" in attribute:
                 attr_ns, attr_name = attribute.split(":")
                 attribute = "{{{0}}}{1}".format(namespaces[attr_ns], attr_name)
-            if not module.check_mode and (element.get(attribute) != value): element.set(attribute, value)
+            if not module.check_mode and (element.get(attribute) != value_str):
+                element.set(attribute, value_str)
 
     finish(tree, xpath, namespaces, module, changed)
 
