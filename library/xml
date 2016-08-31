@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 #
 # xml - Manage bits and pieces of XML files
@@ -333,13 +333,13 @@ def main():
             file=dict(required=False, default=None),
             xmlstring=dict(required=False, default=None),
             xpath=dict(required=False, default='/'),
-            namespaces=dict(required=False, default={}),
+            namespaces=dict(required=False, default={}, type='dict'),
             ensure=dict(required=False, default='present', choices=['absent', 'present']),
             value=dict(required=False, default=None),
             xml=dict(required=False, default=None),
             attribute=dict(required=False, default=None),
-            add_children=dict(required=False, default=None),
-            set_children=dict(required=False, default=None),
+            add_children=dict(required=False, default=None, type='list'),
+            set_children=dict(required=False, default=None, type='list'),
             count=dict(required=False, default=None, type='bool'),
             print_match=dict(required=False, default=None, type='bool'),
             pretty_print=dict(required=False, default=False, type='bool'),
