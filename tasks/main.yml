@@ -1,4 +1,4 @@
 ---
 - name: install python lxml
-  yum: name=python-lxml state=latest
+  yum: name=python-lxml state=present
   when: ansible_os_family == "RedHat"
