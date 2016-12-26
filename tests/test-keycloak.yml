@@ -1,0 +1,16 @@
+---
+  - name: Setup test fixture
+    copy: src=fixtures/keycloak.xml dest=/tmp/keycloak.xml
+
+  - name: Add child element
+    xml:
+      file: /tmp/keycloak.xml
+      xpath: '//d:spi[@name="emailTemplate"]'
+      xml: "{{lookup('file', 'fixtures/keycloak-add.xml')}}"
+      namespaces:
+        d: "urn:jboss:domain:keycloak-server:1.1"
+      print_match: true
+    #ensure: present
+
+  - name: Test expected result
+    command: diff results/test-keycloak.xml /tmp/keycloak.xml

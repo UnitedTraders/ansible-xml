@@ -24,4 +24,5 @@
     - include: test-set-namespaced-element-value.yml
     - include: test-get-element-content.yml
     - include: test-set-xml.yml
+    - include: test-keycloak.yml
 ...

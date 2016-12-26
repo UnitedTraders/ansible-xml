@@ -1,0 +1,3 @@
+<spi name="emailTemplate">
+    <default-provider>aurora-email-template-factory</default-provider>
+</spi>
